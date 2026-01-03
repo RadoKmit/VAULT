@@ -2,7 +2,8 @@
 #define PASSWORD_MANAGER_H
 
 #include "config.h"
-#include "credentials.h"
+
+void read_line(char *file_path, char *buffer, int line);
 
 int find_password_by_service(struct config *config, char *service);
 

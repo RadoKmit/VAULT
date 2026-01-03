@@ -8,6 +8,7 @@
 
 #include "utils.h"
 #include "password_manager.h"
+#include "credentials.h"
 
 /*
  * HELPER FUNCTIONS

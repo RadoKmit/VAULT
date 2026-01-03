@@ -132,11 +132,39 @@ void edit_menu(struct config *config){
     free_credentials(credentials);
 }
 
+void print_show_menu(){
+    printf("# Write service for which password \n");
+    printf("# should be deleted \n");
+    printf("# ->");
+}
+
+void print_credentials(struct credentials *credentials){
+    printf("#-------#YOUR--CREDENTIALS#-------#\n");
+    printf("# Service ->%s\n", credentials->service);
+    printf("# Username ->%s\n", credentials->username);
+    printf("# Password ->%s\n", credentials->password);
+    printf("# Mail ->%s\n", credentials->mail);
+    printf("#-------#YOUR--CREDENTIALS#-------#\n");
+}
+
+void show_menu(struct config *config){
+    print_show_menu();
+    char service[FIELD_SIZE];
+    fgets(service, FIELD_SIZE, stdin);
+    service[strcspn(service, "\n")] = '\0';
+    int line = find_password_by_service(config, service);
+    char buffer[TOTAL_SIZE];
+    read_line(config->path_to_credentials, buffer, line);
+    struct credentials *credentials = create_credentials_from_line(buffer);
+    print_credentials(credentials);
+}
+
 void print_menu(){
     printf("#---------#VAULT-----MENU#---------#\n");
     printf("# add password (ADD)               #\n");
     printf("# del password (DEL)               #\n");
     printf("# edit password (EDIT)             #\n");
+    printf("# show creds for service (SHOW)    #\n");
     printf("# exit app (EXIT)                  #\n");
     printf("#---------#VAULT-----MENU#---------#\n");
     printf("# ->");
@@ -158,6 +186,9 @@ void menu_loop(struct config *config){
         }
         else if(strcmp(choice, "EDIT") == 0){
             edit_menu(config);
+        }
+        else if(strcmp(choice, "SHOW") == 0){
+            show_menu(config);
         }
         else if(strcmp(choice, "EXIT") == 0){
             exit = 1;

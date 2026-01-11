@@ -59,12 +59,14 @@ void add_menu(struct config *config){
     loop_while_illegal_chars(password, "PASSWORD");
     loop_while_illegal_chars(mail, "MAIL");
 
-    add_password(config, service, username, password, mail);
+    add_password(config->path_to_credentials, service, username, password, mail);
 }
 
 void print_del_menu(){
+    printf("#---------#DEL-------MENU#---------#\n");
     printf("# Write service for which password \n");
     printf("# should be deleted \n");
+    printf("#---------#DEL-------MENU#---------#\n");
     printf("# ->");
 }
 
@@ -77,8 +79,8 @@ void del_menu(struct config *config){
         printf("Can't be empty.\n");
         return;
     }
-    remove_pasword(config, service);
-    printf("# Password for %s was deleted :]\n", service);
+    remove_pasword(config->path_to_credentials, service);
+    printf("# Password for %s was deleted :`]\n", service);
 }
 
 void edit_loop(char *field_name){
@@ -111,6 +113,7 @@ void print_edit_menu(struct credentials *credentials){
 }
 
 void edit_menu(struct config *config){
+    printf("#---------#EDIT------MENU#---------#\n");
     printf("# service to edit ->");
     char service[FIELD_SIZE];
     fgets(service, FIELD_SIZE, stdin);
@@ -119,7 +122,7 @@ void edit_menu(struct config *config){
         printf("Can't be empty.\n");
         return;
     }
-    char *buffer = get_password_to_edit(config, service);
+    char *buffer = get_password_to_edit(config->path_to_credentials, service);
     if(buffer == NULL){
         return;
     }
@@ -127,14 +130,16 @@ void edit_menu(struct config *config){
     struct credentials *credentials = create_credentials_from_line(buffer);
     print_edit_menu(credentials);
     connect_credentials(credentials);
-    int line = find_password_by_service(config, service);
-    edit_password(config, credentials->connected_credentials, line);
+    int line = find_password_by_service(config->path_to_credentials, service);
+    edit_password(config->path_to_credentials, credentials->connected_credentials, line);
     free_credentials(credentials);
 }
 
 void print_show_menu(){
+    printf("#---------#SHOW------MENU#---------#\n");
     printf("# Write service for which password \n");
-    printf("# should be deleted \n");
+    printf("# should be shown \n");
+    printf("#---------#SHOW------MENU#---------#\n");
     printf("# ->");
 }
 
@@ -152,7 +157,11 @@ void show_menu(struct config *config){
     char service[FIELD_SIZE];
     fgets(service, FIELD_SIZE, stdin);
     service[strcspn(service, "\n")] = '\0';
-    int line = find_password_by_service(config, service);
+    int line = find_password_by_service(config->path_to_credentials, service);
+    if(line < 0){
+        printf("Could not find the password :(\n");
+        return;
+    }
     char buffer[TOTAL_SIZE];
     read_line(config->path_to_credentials, buffer, line);
     struct credentials *credentials = create_credentials_from_line(buffer);
@@ -172,27 +181,30 @@ void print_menu(){
 
 void menu_loop(struct config *config){
     unsigned int exit = 0;
+    char test_char[2];
+    char choice[FIELD_SIZE];
     while(!exit){
         print_menu();
-        char choice[FIELD_SIZE];
         fgets(choice, FIELD_SIZE, stdin);
         choice[strcspn(choice, "\n")] = '\0';
 
-        if(strcmp(choice, "ADD") == 0){
+        if(strcmp(choice, "ADD") == 0 || strcmp(choice, "add") == 0){
             add_menu(config);
         }
-        else if(strcmp(choice, "DEL") == 0){
+        else if(strcmp(choice, "DEL") == 0 || strcmp(choice, "del") == 0){
             del_menu(config);
         }
-        else if(strcmp(choice, "EDIT") == 0){
+        else if(strcmp(choice, "EDIT") == 0 || strcmp(choice, "edit") == 0){
             edit_menu(config);
         }
-        else if(strcmp(choice, "SHOW") == 0){
+        else if(strcmp(choice, "SHOW") == 0 || strcmp(choice, "show") == 0){
             show_menu(config);
+            printf("# PRESS ENTER TO CONTINUE ->");
+            fgets(test_char, 2, stdin);
         }
-        else if(strcmp(choice, "EXIT") == 0){
+        else if(strcmp(choice, "EXIT") == 0 || strcmp(choice, "exit") == 0){
             exit = 1;
-            printf("Exiting VAULT\n");
+            printf("Exiting VAULT o/\n");
         }
     }
 }
